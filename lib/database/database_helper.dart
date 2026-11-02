@@ -46,5 +46,12 @@ class DatabaseHelper {
     return await db.insert('contacts', contact.toMap());
   }//end method
 
+  // all contacts
+  Future<List<ContactModel>> getAllContacts() async{
+    final db = await database;
+    final maps = await db.query('contacts');
+
+    return maps.map((map) => ContactModel.fromMap(map)).toList();
+  }//end method
 
 }

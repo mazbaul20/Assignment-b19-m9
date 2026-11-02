@@ -24,6 +24,14 @@ class _ContactScreenState extends State<ContactScreen> {
   //database helper
   final DatabaseHelper _db = DatabaseHelper();
 
+  List<ContactModel> _contacts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _readContact();
+  }
+
   Future<void> addContact() async {
     if (_nameController.text.isEmpty) {
       showCustomSnackBar(context, "Name is required!");
@@ -60,8 +68,16 @@ class _ContactScreenState extends State<ContactScreen> {
       setState(() {
         _isFavoriteInput = false;
       });
+      await _readContact();
     }
   } // end method
+
+  Future<void> _readContact() async {
+    final contacts = await _db.getAllContacts();
+    setState(() {
+      _contacts = contacts;
+    });
+  } //end method
 
   @override
   Widget build(BuildContext context) {
@@ -183,15 +199,15 @@ class _ContactScreenState extends State<ContactScreen> {
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: 10,
+                itemCount: _contacts.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
                     leading: const CircleAvatar(
                       radius: 20,
                       child: Icon(Icons.person, color: Colors.blue),
                     ),
-                    title: Text('Contact $index'),
-                    subtitle: Text("+880 123456789"),
+                    title: Text(_contacts[index].name),
+                    subtitle: Text("+88 ${_contacts[index].phoneNumber}"),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
