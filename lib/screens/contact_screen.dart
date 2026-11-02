@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../database/database_helper.dart';
+import '../models/contact_model.dart';
+import '../widgets/custom_snackbar.dart';
+
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
 
@@ -15,8 +19,46 @@ class _ContactScreenState extends State<ContactScreen> {
   final _phoneNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
-
   bool _isFavoriteInput = false;
+
+  //database helper
+  final DatabaseHelper _db = DatabaseHelper();
+
+  Future<void> addContact() async {
+    if (_nameController.text.isEmpty) {
+      showCustomSnackBar(context, "Name is required!");
+      return;
+    } else if (_phoneNumberController.text.isEmpty) {
+      showCustomSnackBar(context, "Phone Number is required!");
+      return;
+    } else if (_emailController.text.isEmpty) {
+      showCustomSnackBar(context, "Email is required!");
+      return;
+    } else if (_addressController.text.isEmpty) {
+      showCustomSnackBar(context, "Address is required!");
+      return;
+    } else {
+      final contact = ContactModel(
+        name: _nameController.text,
+        phoneNumber: _phoneNumberController.text,
+        email: _emailController.text,
+        address: _addressController.text,
+        isFavourite: _isFavoriteInput,
+      );
+
+      await _db.insertContact(contact);
+      showCustomSnackBar(
+        context,
+        "Contact added successfully!",
+        isError: false,
+      );
+
+      _nameController.clear();
+      _phoneNumberController.clear();
+      _emailController.clear();
+      _addressController.clear();
+    }
+  }// end method
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +156,9 @@ class _ContactScreenState extends State<ContactScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          addContact();
+                        },
                         child: Text("ADD"),
                       ),
                     ),
@@ -122,6 +166,7 @@ class _ContactScreenState extends State<ContactScreen> {
                 ),
               ),
             ),
+
             Divider(thickness: 1, color: Colors.grey),
             Padding(
               padding: const EdgeInsets.only(left: 14.0),

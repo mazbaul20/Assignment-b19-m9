@@ -40,5 +40,11 @@ class DatabaseHelper {
     );
   }//end method
 
+  // Insert contacts
+  Future<int> insertContact(ContactModel contact) async{
+    final db = await database;
+    return await db.insert('contacts', contact.toMap());
+  }//end method
+
 
 }
