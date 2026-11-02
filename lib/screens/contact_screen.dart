@@ -57,8 +57,11 @@ class _ContactScreenState extends State<ContactScreen> {
       _phoneNumberController.clear();
       _emailController.clear();
       _addressController.clear();
+      setState(() {
+        _isFavoriteInput = false;
+      });
     }
-  }// end method
+  } // end method
 
   @override
   Widget build(BuildContext context) {
