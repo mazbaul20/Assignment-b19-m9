@@ -91,9 +91,9 @@ class _ContactScreenState extends State<ContactScreen> {
     await _readContact();
   } //end method
 
-  void _editContact(ContactModel contact){
+  void _editContact(ContactModel contact) {
     setState(() {
-      _selectedContact=contact;
+      _selectedContact = contact;
       _nameController.text = contact.name;
       _phoneNumberController.text = contact.phoneNumber;
       _emailController.text = contact.email;
@@ -101,6 +101,51 @@ class _ContactScreenState extends State<ContactScreen> {
       _isFavoriteInput = contact.isFavourite;
     });
   } //end method
+
+  Future<void> _updateContact() async {
+    if (_selectedContact == null) return;
+
+    if (_nameController.text.isEmpty) {
+      showCustomSnackBar(context, "Name is required!");
+      return;
+    }
+    if (_phoneNumberController.text.isEmpty) {
+      showCustomSnackBar(context, "Phone Number is required!");
+      return;
+    }
+    if (_emailController.text.isEmpty) {
+      showCustomSnackBar(context, "Email is required!");
+      return;
+    }
+    if (_addressController.text.isEmpty) {
+      showCustomSnackBar(context, "Address is required!");
+      return;
+    }
+
+    final contact = ContactModel(
+      id: _selectedContact!.id,
+      name: _nameController.text,
+      phoneNumber: _phoneNumberController.text,
+      email: _emailController.text,
+      address: _addressController.text,
+      isFavourite: _isFavoriteInput,
+    );
+
+    await _db.updateContact(contact);
+
+    showCustomSnackBar(context, "Contact Updated successful!", isError: false);
+
+    setState(() {
+      _selectedContact = null;
+      _nameController.clear();
+      _phoneNumberController.clear();
+      _emailController.clear();
+      _addressController.clear();
+      _isFavoriteInput = false;
+    });
+
+    await _readContact();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +185,9 @@ class _ContactScreenState extends State<ContactScreen> {
                       TextFormField(
                         controller: _phoneNumberController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Phone Number',
@@ -202,10 +249,16 @@ class _ContactScreenState extends State<ContactScreen> {
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                          onPressed: () {
-                            addContact();
+                          onPressed: () async {
+                            if (_selectedContact != null) {
+                              await _updateContact();
+                            } else {
+                              await addContact();
+                            }
                           },
-                          child: Text(_selectedContact == null ? 'ADD' : 'UPDATE'),
+                          child: Text(
+                            _selectedContact == null ? 'ADD' : 'UPDATE',
+                          ),
                         ),
                       ),
                     ],
@@ -240,7 +293,10 @@ class _ContactScreenState extends State<ContactScreen> {
                         children: [
                           IconButton(
                             onPressed: () {},
-                            icon: Icon(Icons.favorite_border, color: Colors.red),
+                            icon: Icon(
+                              Icons.favorite_border,
+                              color: Colors.red,
+                            ),
                           ),
                           IconButton(
                             onPressed: () async {

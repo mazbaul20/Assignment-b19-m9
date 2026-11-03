@@ -54,7 +54,7 @@ class DatabaseHelper {
     return maps.map((map) => ContactModel.fromMap(map)).toList();
   }//end method
 
-  Future<int> deleteContact(id) async{
+  Future<int> deleteContact(int id) async{
     final db = await database;
     return await db.delete(
       'contacts',
@@ -62,5 +62,15 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }//end method
+
+  Future<int> updateContact(ContactModel contact) async {
+    final db = await database;
+    return await db.update(
+      'contacts',
+      contact.toMap(),
+      where: 'id = ?',
+      whereArgs: [contact.id],
+    );
+  }// end method
 
 }
