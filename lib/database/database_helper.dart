@@ -13,21 +13,20 @@ class DatabaseHelper {
   //database variable
   static Database? _database;
 
-  Future<Database> get database async{
-    if(_database != null) return _database!;
+  Future<Database> get database async {
+    if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  Future<Database> _initDatabase() async{
+  Future<Database> _initDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'ContactManagement.db');
     return await openDatabase(path, version: 1, onCreate: _createTable);
   }
 
-  Future<void> _createTable(Database db, int version) async{
-    await db.execute(
-      '''
+  Future<void> _createTable(Database db, int version) async {
+    await db.execute('''
          CREATE TABLE contacts(
            id INTEGER PRIMARY KEY AUTOINCREMENT,
            name TEXT NOT NULL,
@@ -36,32 +35,27 @@ class DatabaseHelper {
            address TEXT NOT NULL,
            isFavourite INTEGER NOT NULL DEFAULT 0
          )
-      '''
-    );
-  }//end method
+      ''');
+  } //end method
 
   // Insert contacts
-  Future<int> insertContact(ContactModel contact) async{
+  Future<int> insertContact(ContactModel contact) async {
     final db = await database;
     return await db.insert('contacts', contact.toMap());
-  }//end method
+  } //end method
 
   // all contacts
-  Future<List<ContactModel>> getAllContacts() async{
+  Future<List<ContactModel>> getAllContacts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('contacts');
 
     return maps.map((map) => ContactModel.fromMap(map)).toList();
-  }//end method
+  } //end method
 
-  Future<int> deleteContact(int id) async{
+  Future<int> deleteContact(int id) async {
     final db = await database;
-    return await db.delete(
-      'contacts',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }//end method
+    return await db.delete('contacts', where: 'id = ?', whereArgs: [id]);
+  } //end method
 
   Future<int> updateContact(ContactModel contact) async {
     final db = await database;
@@ -71,6 +65,15 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [contact.id],
     );
-  }// end method
+  } // end method
 
+  Future<int> updateFavoriteStatus(int id, bool isFavourite) async {
+    final db = await database;
+    return await db.update(
+      'contacts',
+      {'isFavourite': isFavourite ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  } // end method
 }

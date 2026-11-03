@@ -4,7 +4,7 @@ class ContactModel {
   final String phoneNumber;
   final String email;
   final String address;
-  final bool isFavourite;
+  bool isFavourite;
 
   ContactModel({
       this.id,

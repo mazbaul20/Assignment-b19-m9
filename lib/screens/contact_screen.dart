@@ -147,6 +147,23 @@ class _ContactScreenState extends State<ContactScreen> {
     await _readContact();
   }
 
+  //toggle favorite
+  Future<void> _toggleFavorite(int index) async {
+    setState(() {
+      _contacts[index].isFavourite = !(_contacts[index].isFavourite);
+    });
+
+    await _db.updateFavoriteStatus(
+      _contacts[index].id!,
+      _contacts[index].isFavourite,
+    );
+    showCustomSnackBar(
+      context,
+      "Favorite status updated successfully!",
+      isError: false,
+    );
+  } // end method
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -292,9 +309,13 @@ class _ContactScreenState extends State<ContactScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              _toggleFavorite(index);
+                            },
                             icon: Icon(
-                              Icons.favorite_border,
+                              _contacts[index].isFavourite == true
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: Colors.red,
                             ),
                           ),
