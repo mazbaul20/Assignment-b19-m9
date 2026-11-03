@@ -79,6 +79,17 @@ class _ContactScreenState extends State<ContactScreen> {
     });
   } //end method
 
+  Future<void> _deleteContact(int id) async {
+    await _db.deleteContact(id);
+    if (!mounted) return;
+    showCustomSnackBar(
+      context,
+      "Contact deleted successfully!",
+      isError: false,
+    );
+    await _readContact();
+  } //end method
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,7 +227,9 @@ class _ContactScreenState extends State<ContactScreen> {
                           icon: Icon(Icons.favorite_border, color: Colors.red),
                         ),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await _deleteContact(_contacts[index].id!);
+                          },
                           icon: Icon(Icons.delete, color: Colors.red),
                         ),
                       ],

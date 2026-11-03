@@ -49,9 +49,18 @@ class DatabaseHelper {
   // all contacts
   Future<List<ContactModel>> getAllContacts() async{
     final db = await database;
-    final maps = await db.query('contacts');
+    final List<Map<String, dynamic>> maps = await db.query('contacts');
 
     return maps.map((map) => ContactModel.fromMap(map)).toList();
+  }//end method
+
+  Future<int> deleteContact(id) async{
+    final db = await database;
+    return await db.delete(
+      'contacts',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }//end method
 
 }
