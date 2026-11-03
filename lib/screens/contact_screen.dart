@@ -25,6 +25,7 @@ class _ContactScreenState extends State<ContactScreen> {
   final DatabaseHelper _db = DatabaseHelper();
 
   List<ContactModel> _contacts = [];
+  ContactModel? _selectedContact;
 
   @override
   void initState() {
@@ -90,6 +91,17 @@ class _ContactScreenState extends State<ContactScreen> {
     await _readContact();
   } //end method
 
+  void _editContact(ContactModel contact){
+    setState(() {
+      _selectedContact=contact;
+      _nameController.text = contact.name;
+      _phoneNumberController.text = contact.phoneNumber;
+      _emailController.text = contact.email;
+      _addressController.text = contact.address;
+      _isFavoriteInput = contact.isFavourite;
+    });
+  } //end method
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,146 +112,153 @@ class _ContactScreenState extends State<ContactScreen> {
         actions: [IconButton(icon: const Icon(Icons.search), onPressed: () {})],
       ),
 
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Name',
-                        label: Text('Name'),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _phoneNumberController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Phone Number',
-                        label: Text('Phone Number'),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Email',
-                        label: Text('Email'),
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-
-                    TextFormField(
-                      controller: _addressController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Address',
-                        label: Text('Address'),
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-
-                    SwitchListTile(
-                      title: const Text('Add to Favorites?'),
-                      subtitle: const Text(
-                        'Mark this contact as a favorite immediately',
-                      ),
-                      value: _isFavoriteInput,
-                      activeThumbColor: Colors.red,
-                      secondary: Icon(
-                        _isFavoriteInput
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: _isFavoriteInput ? Colors.red : Colors.grey,
-                      ),
-                      onChanged: (bool value) {
-                        setState(() {
-                          _isFavoriteInput = value;
-                        });
-                      },
-                    ),
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _readContact();
+        },
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Name',
+                          label: Text('Name'),
                         ),
-                        onPressed: () {
-                          addContact();
-                        },
-                        child: Text("ADD"),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 14),
+
+                      TextFormField(
+                        controller: _phoneNumberController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Phone Number',
+                          label: Text('Phone Number'),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Email',
+                          label: Text('Email'),
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      TextFormField(
+                        controller: _addressController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Address',
+                          label: Text('Address'),
+                        ),
+                      ),
+
+                      SizedBox(height: 10),
+
+                      SwitchListTile(
+                        title: const Text('Add to Favorites?'),
+                        subtitle: const Text(
+                          'Mark this contact as a favorite immediately',
+                        ),
+                        value: _isFavoriteInput,
+                        activeThumbColor: Colors.red,
+                        secondary: Icon(
+                          _isFavoriteInput
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: _isFavoriteInput ? Colors.red : Colors.grey,
+                        ),
+                        onChanged: (bool value) {
+                          setState(() {
+                            _isFavoriteInput = value;
+                          });
+                        },
+                      ),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: () {
+                            addContact();
+                          },
+                          child: Text(_selectedContact == null ? 'ADD' : 'UPDATE'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            Divider(thickness: 1, color: Colors.grey),
-            Padding(
-              padding: const EdgeInsets.only(left: 14.0),
-              child: Text(
-                'Contact List',
-                textAlign: TextAlign.left,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              Divider(thickness: 1, color: Colors.grey),
+              Padding(
+                padding: const EdgeInsets.only(left: 14.0),
+                child: Text(
+                  'Contact List',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
               ),
-            ),
-            Divider(),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _contacts.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    leading: const CircleAvatar(
-                      radius: 20,
-                      child: Icon(Icons.person, color: Colors.blue),
-                    ),
-                    title: Text(_contacts[index].name),
-                    subtitle: Text("+88 ${_contacts[index].phoneNumber}"),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.favorite_border, color: Colors.red),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            await _deleteContact(_contacts[index].id!);
-                          },
-                          icon: Icon(Icons.delete, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    onTap: () {},
-                  );
-                },
+              Divider(),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _contacts.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      leading: const CircleAvatar(
+                        radius: 20,
+                        child: Icon(Icons.person, color: Colors.blue),
+                      ),
+                      title: Text(_contacts[index].name),
+                      subtitle: Text("+88 ${_contacts[index].phoneNumber}"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.favorite_border, color: Colors.red),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              await _deleteContact(_contacts[index].id!);
+                            },
+                            icon: Icon(Icons.delete, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        _editContact(_contacts[index]);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
