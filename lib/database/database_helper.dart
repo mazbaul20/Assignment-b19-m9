@@ -76,4 +76,18 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   } // end method
+
+  Future<List<ContactModel>> searchContacts(String name) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'contacts',
+      where: 'name LIKE ?',
+      whereArgs: ['%$name%'],
+    );
+
+    return List.generate(maps.length, (i) {
+      return ContactModel.fromMap(maps[i]);
+    });
+  } // end method
 }
