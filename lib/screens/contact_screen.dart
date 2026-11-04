@@ -5,6 +5,7 @@ import '../database/database_helper.dart';
 import '../models/contact_model.dart';
 import '../widgets/custom_snackbar.dart';
 import '../widgets/search_contact_widget.dart';
+import 'favorite_contact_screen.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
@@ -173,6 +174,16 @@ class _ContactScreenState extends State<ContactScreen> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.star, color: Colors.amber),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoriteContactScreen()),
+              );
+              _readContact();
+            },
+          ),
           IconButton(
             onPressed: () {
               showModalBottomSheet(

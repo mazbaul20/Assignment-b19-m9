@@ -90,4 +90,15 @@ class DatabaseHelper {
       return ContactModel.fromMap(maps[i]);
     });
   } // end method
+
+  Future<List<ContactModel>> getFavoriteContacts() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'contacts',
+      where: 'isFavourite = ?',
+      whereArgs: [1],
+    );
+
+    return maps.map((map) => ContactModel.fromMap(map)).toList();
+  } // end method
 }
