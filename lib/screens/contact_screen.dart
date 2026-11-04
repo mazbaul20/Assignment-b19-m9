@@ -179,7 +179,9 @@ class _ContactScreenState extends State<ContactScreen> {
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FavoriteContactScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const FavoriteContactScreen(),
+                ),
               );
               _readContact();
             },
@@ -329,46 +331,150 @@ class _ContactScreenState extends State<ContactScreen> {
               ),
               Divider(),
               const SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _contacts.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      leading: const CircleAvatar(
-                        radius: 20,
-                        child: Icon(Icons.person, color: Colors.blue),
-                      ),
-                      title: Text(_contacts[index].name),
-                      subtitle: Text("+88 ${_contacts[index].phoneNumber}"),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              _toggleFavorite(index);
-                            },
-                            icon: Icon(
-                              _contacts[index].isFavourite == true
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: Colors.red,
+
+              _contacts.isEmpty
+                  ? Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person_off_rounded,
+                              size: 80,
+                              color: Colors.grey[400],
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () async {
-                              await _deleteContact(_contacts[index].id!);
-                            },
-                            icon: Icon(Icons.delete, color: Colors.red),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              "No contacts saved yet!",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      onTap: () {
-                        _editContact(_contacts[index]);
-                      },
-                    );
-                  },
-                ),
-              ),
+                    )
+                  : Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        itemCount: _contacts.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final contact = _contacts[index];
+
+                          return Card(
+                            elevation: 1,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6.0,
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.blue.withAlpha(25),
+                                  child: Text(
+                                    contact.name.isNotEmpty
+                                        ? contact.name[0].toUpperCase()
+                                        : '?',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  contact.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Column(
+                                    crossAxisAlignment: .start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.phone,
+                                            size: 14,
+                                            color: Colors.blue,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            "+88 ${contact.phoneNumber}",
+                                            style: TextStyle(
+                                              color: Colors.blue[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (contact.email.isNotEmpty) ...[
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.email,
+                                              size: 14,
+                                              color: Colors.blue,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              contact.email,
+                                              style: TextStyle(
+                                                color: Colors.blue[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        _toggleFavorite(index);
+                                      },
+                                      icon: Icon(
+                                        contact.isFavourite == true
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        await _deleteContact(contact.id!);
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  _editContact(contact);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
             ],
           ),
         ),
